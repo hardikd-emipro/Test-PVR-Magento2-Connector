@@ -5,5 +5,4 @@ from . import sale_order
 from . import sale_order_line
 from . import procurement_group
 from . import res_partner
-from . import product_product
 from . import product_queue_line

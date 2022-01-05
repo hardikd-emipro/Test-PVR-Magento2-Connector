@@ -88,11 +88,13 @@ class MagentoProductQueueLine(models.Model):
         attribute = item.get('extension_attributes', {})
         if item.get('type_id') == 'simple':
             if 'simple_parent_id' in list(attribute.keys()):
-                # This case only runs when we get the simple product which are used as an
-                # Child product of any configurable product in Magento.
-                items = m_product.get_products(instance, [attribute.get('simple_parent_id')], line)
-                for item in items:
-                    return m_product.import_configurable_product(line, item)
+                m_product = m_product.search([('magento_product_id', '=', item.get('id'))], limit=1)
+                if not m_product or not line.do_not_update_existing_product:
+                    # This case only runs when we get the simple product which are used as an
+                    # Child product of any configurable product in Magento.
+                    items = m_product.get_products(instance, [attribute.get('simple_parent_id')], line)
+                    for item in items:
+                        return m_product.import_configurable_product(line, item)
             else:
                 # This case identifies that we get only simple product which are not set as an
                 # Child product of any configurable product.
