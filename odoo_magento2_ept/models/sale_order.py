@@ -358,6 +358,9 @@ class SaleOrder(models.Model):
         if instance.magento_apply_tax_in_order == 'create_magento_tax':
             for line in item.get('items'):
                 tax_percent = line.get('tax_percent', 0.0)
+                parent_item = line.get('parent_item', {})
+                if parent_item and parent_item.get('product_type') != 'bundle':
+                    tax_percent = line.get('parent_item', {}).get('tax_percent', 0.0)
                 if tax_percent:
                     tax_name = '%s %% ' % tax_percent
                     tax_type = (item.get('website').tax_calculation_method == 'included_tax')
