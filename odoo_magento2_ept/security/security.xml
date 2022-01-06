@@ -28,7 +28,47 @@
         </record> -->
 
 
-        <!-- Multi - Company Rules -->
+        <!-- Multi - Company Product Tempalte Rules -->
+        <record model="ir.rule" id="magento_product_template_comp_rule">
+            <field name="name">Magento Product Template multi-company</field>
+            <field name="model_id" ref="model_magento_product_template"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('magento_instance_id.company_id', 'in', company_ids)]</field>
+        </record>
+
+        <!-- Multi - Company Product Product Rules -->
+        <record model="ir.rule" id="magento_product_product_comp_rule">
+            <field name="name">Magento Product Product multi-company</field>
+            <field name="model_id" ref="model_magento_product_product"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <!-- Multi - Company Product Data Queue Rules -->
+        <record model="ir.rule" id="magento_product_queue_comp_rule">
+            <field name="name">Magento Product data queue multi-company</field>
+            <field name="model_id" ref="model_sync_import_magento_product_queue"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('instance_id.company_id', 'in', company_ids)]</field>
+        </record>
+
+        <!-- Multi - Company Customer Data Queue Rules -->
+        <record model="ir.rule" id="magento_customer_queue_comp_rule">
+            <field name="name">Magento Customer data queue multi-company</field>
+            <field name="model_id" ref="model_magento_customer_data_queue_ept"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('instance_id.company_id', 'in', company_ids)]</field>
+        </record>
+
+        <!-- Multi - Company Order Data Queue Rules -->
+        <record model="ir.rule" id="magento_order_queue_comp_rule">
+            <field name="name">Magento Order data queue multi-company</field>
+            <field name="model_id" ref="model_magento_order_data_queue_ept"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('instance_id.company_id', 'in', company_ids)]</field>
+        </record>
+
+        <!-- Multi - Magento Instance Rules -->
         <record model="ir.rule" id="magento_instance_comp_rule">
             <field name="name">Magento Instance multi-company</field>
             <field name="model_id" ref="model_magento_instance"/>
@@ -36,6 +76,7 @@
             <field name="domain_force">[('company_id', 'in', company_ids)]</field>
         </record>
 
+        <!-- Multi - Magento Website Rules -->
         <record model="ir.rule" id="magento_website_comp_rule">
             <field name="name">Magento Website multi-company</field>
             <field name="model_id" ref="model_magento_website"/>
@@ -43,6 +84,7 @@
             <field name="domain_force">[('company_id', 'in', company_ids)]</field>
         </record>
 
+        <!-- Multi - Magento Payment Method Rules -->
         <record model="ir.rule" id="magento_paymentmethod_comp_rule">
             <field name="name">Magento Payment multi-company</field>
             <field name="model_id" ref="model_magento_payment_method"/>
@@ -50,6 +92,7 @@
             <field name="domain_force">[('company_id', 'in', company_ids)]</field>
         </record>
 
+        <!-- Multi - Magento Financial Status Rules -->
         <record model="ir.rule" id="magento_financial_status_rule">
             <field name="name">Magento Financial Status multi-company</field>
             <field name="model_id" ref="model_magento_financial_status_ept"/>
