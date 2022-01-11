@@ -345,27 +345,30 @@ class SaleOrder(models.Model):
 
     def __find_tax_percent_title(self, item, instance):
         tax_details = []
-        if 'apply_discount_on_prices' in item.get('extension_attributes'):
-            tax_type = self.__find_tax_type(item.get('extension_attributes'),
-                                            'apply_discount_on_prices')
-            tax_percent = self.__find_discount_tax_percent(item.get('items'))
-            tax_name = '%s %% ' % tax_percent
-            tax_details.append(
-                {'line_tax': 'discount_tax', 'tax_type': tax_type, 'tax_title': tax_name, 'tax_percent': tax_percent})
-        if 'apply_shipping_on_prices' in item.get('extension_attributes'):
-            ext_attrs = item.get('extension_attributes')
-            tax_details = self.__find_shipping_tax_percent(tax_details, ext_attrs)
         if instance.magento_apply_tax_in_order == 'create_magento_tax':
-            for line in item.get('items'):
-                tax_percent = line.get('tax_percent', 0.0)
-                parent_item = line.get('parent_item', {})
-                if parent_item and parent_item.get('product_type') != 'bundle':
-                    tax_percent = line.get('parent_item', {}).get('tax_percent', 0.0)
-                if tax_percent:
-                    tax_name = '%s %% ' % tax_percent
-                    tax_type = (item.get('website').tax_calculation_method == 'included_tax')
-                    tax_details.append(
-                        {'line_tax': f'order_tax_{line.get("item_id")}', 'tax_type': tax_type, 'tax_title': tax_name, 'tax_percent': tax_percent})
+            if 'apply_discount_on_prices' in item.get('extension_attributes'):
+                tax_type = self.__find_tax_type(item.get('extension_attributes'),
+                                                'apply_discount_on_prices')
+                tax_percent = self.__find_discount_tax_percent(item.get('items'))
+                tax_name = '%s %% ' % tax_percent
+                tax_details.append(
+                    {'line_tax': 'discount_tax', 'tax_type': tax_type, 'tax_title': tax_name,
+                     'tax_percent': tax_percent})
+            if 'apply_shipping_on_prices' in item.get('extension_attributes'):
+                ext_attrs = item.get('extension_attributes')
+                tax_details = self.__find_shipping_tax_percent(tax_details, ext_attrs)
+            else:
+                for line in item.get('items'):
+                    tax_percent = line.get('tax_percent', 0.0)
+                    parent_item = line.get('parent_item', {})
+                    if parent_item and parent_item.get('product_type') != 'bundle':
+                        tax_percent = line.get('parent_item', {}).get('tax_percent', 0.0)
+                    if tax_percent:
+                        tax_name = '%s %% ' % tax_percent
+                        tax_type = (item.get('website').tax_calculation_method == 'included_tax')
+                        tax_details.append(
+                            {'line_tax': f'order_tax_{line.get("item_id")}', 'tax_type': tax_type,
+                             'tax_title': tax_name, 'tax_percent': tax_percent})
         return tax_details
 
     @staticmethod

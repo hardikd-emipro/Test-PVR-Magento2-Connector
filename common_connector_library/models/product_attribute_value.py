@@ -6,7 +6,7 @@ from odoo import models
 class ProductAttributeValue(models.Model):
     _inherit = "product.attribute.value"
 
-    def get_attribute_values(self, name, attribute_id, auto_create=False):
+    def get_attribute_values(self, name, attribute_id, auto_create=False, is_ilike=True):
         """
         Gives attribute value if found, otherwise creates new one and returns it.
         Updated on 15-Feb-2021. In odoo, while search attribute value name('black\') with ilike, it gives an error in
@@ -14,12 +14,13 @@ class ProductAttributeValue(models.Model):
         :param name: name of attribute value
         :param attribute_id:id of attribute
         :param auto_create: True or False
+        :param is_ilike: If True it will search using =ilike operator if value is not found.
         :return: attribute values
         Migration done by Haresh Mori on September 2021
         """
         attribute_values = self.search([('name', '=', name), ('attribute_id', '=', attribute_id)], limit=1)
 
-        if not attribute_values:
+        if not attribute_values and is_ilike:
             attribute_values = self.search([('name', '=ilike', name), ('attribute_id', '=', attribute_id)], limit=1)
 
         if not attribute_values and auto_create:

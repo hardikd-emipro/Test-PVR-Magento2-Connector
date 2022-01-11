@@ -24,11 +24,10 @@ class MagentoAttributeOption(models.Model):
     active = fields.Boolean(string="Status", default=True)
 
     def create_attribute_option(self, attribute, m_attribute, o_attribute):
-        o_option = self.env['product.attribute.value']
         for option in attribute.get('options', []):
             option.update({'label': option.get('label').strip()})
             if option.get('label'):
-                o_option = o_option.get_attribute_values(option.get('label'), o_attribute.id, True)
+                o_option = self._get_odoo_attribute_value(o_attribute.id, option.get('label'))
                 m_option = self.search([('instance_id', '=', m_attribute.instance_id.id),
                                         ('magento_attribute_id', '=', m_attribute.id),
                                         ('odoo_option_id', '=', o_option.id),
@@ -37,6 +36,14 @@ class MagentoAttributeOption(models.Model):
                     values = self._prepare_option_value(option, o_option, o_attribute, m_attribute)
                     self.create(values)
         return True
+
+    def _get_odoo_attribute_value(self, attribute_id, label):
+        o_option = self.env['product.attribute.value']
+        o_option = o_option.search([('name', '=', label),
+                                    ('attribute_id', '=', attribute_id)], limit=1)
+        if not o_option:
+            o_option = o_option.create({'name': label, 'attribute_id': attribute_id})
+        return o_option
 
     @staticmethod
     def _prepare_option_value(option, o_option, o_attribute, m_attribute):

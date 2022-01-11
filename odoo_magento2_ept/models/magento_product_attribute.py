@@ -153,7 +153,7 @@ class MagentoProductAttribute(models.Model):
             m_attribute = self.search([('name', '=ilike', attribute.get('label')),
                                        ('instance_id', '=', instance.id)], limit=1)
         if attribute:
-            m_option = self._search_attribute_value(attribute, m_attribute)
+            m_option = self._search_attribute_value(attribute, m_attribute, instance, set_id)
         return {
             'value_id': m_option.odoo_option_id.id,
             'attribute_id': m_attribute.odoo_attribute_id.id,
@@ -171,11 +171,18 @@ class MagentoProductAttribute(models.Model):
             ]
         }
 
-    def _search_attribute_value(self, attribute, m_attribute):
+    def _search_attribute_value(self, attribute, m_attribute, instance, set_id):
         option = self.env['magento.attribute.option']
+        if not attribute.get('value', False):
+            return option
         option = option.search([('magento_attribute_id', '=', m_attribute.id),
                                 ('magento_attribute_option_name', '=', attribute.get('value'))],
                                limit=1)
+        if not option:
+            sets = self.__prepare_sets(set_id)
+            _logger.info("Attribute value is not found...")
+            _logger.info("Importing product attributes by attribute set ID...")
+            self.import_magento_attributes(instance, sets)
         return option
 
     def open_attribute_value(self):

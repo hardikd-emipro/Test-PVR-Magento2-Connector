@@ -255,14 +255,16 @@ class MagentoProductProduct(models.Model):
         instance = line.instance_id
         data = self.magento_tmpl_id.get_website_category_attribute_tax_class(item, instance)
         values = self._prepare_layer_product_values(template, product, item, data)
-        product = self.create(values)
+        m_product = self.search([('magento_product_id', '=', item.get('id'))], limit=1)
+        if not m_product:
+            m_product = self.create(values)
         if instance.allow_import_image_of_products:
             m_template = self.env['magento.product.template']
             # We will only update/create image in layer and odoo product if customer has
             # enabled the configuration from instance.
             images = m_template.get_product_images(item, data, line)
-            m_template.create_layer_image(instance, images, variant=product)
-        return product
+            m_template.create_layer_image(instance, images, variant=m_product)
+        return m_product
 
     def _prepare_layer_product_values(self, template, product, item, data):
         values = {
@@ -385,7 +387,12 @@ class MagentoProductProduct(models.Model):
         log = line.queue_id.log_book_id
         is_order = bool('is_order' in list(self.env.context.keys()))
         o_product = self.env['product.product']
-        o_product = o_product.search([('default_code', '=', item.get('sku'))], limit=1)
+        m_product = self.env['magento.product.product']
+        m_product = m_product.search([('magento_product_id', '=', item.get('id'))], limit=1)
+        if m_product:
+            o_product = m_product.odoo_product_id
+        if not o_product:
+            o_product = o_product.search([('default_code', '=', item.get('sku'))], limit=1)
         if o_product:
             self.update_custom_option(item)
             self._map_product_in_layer(line, item, o_product)

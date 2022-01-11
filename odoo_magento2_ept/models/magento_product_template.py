@@ -196,7 +196,7 @@ class MagentoProductTemplate(models.Model):
             'magento_tmpl_id': m_template.id,
             'created_at': datetime.strptime(item.get('created_at'), '%Y-%m-%d %H:%M:%S').date(),
             'updated_at': datetime.strptime(item.get('created_at'), '%Y-%m-%d %H:%M:%S').date(),
-            'product_type': 'simple',
+            'product_type': child.get('product_type', 'simple'),
             'magento_website_ids': [(6, 0, data.get('website'))],
             'sync_product_with_magento': True
         }
