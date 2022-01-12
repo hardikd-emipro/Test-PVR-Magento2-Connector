@@ -71,6 +71,15 @@ class SaleOrderLine(models.Model):
             ], limit=1)
             if not magento_product:
                 product_obj = self.env['product.product'].search([('default_code', '=', product_sku)])
+                if not product_obj:
+                    message = _(f"""
+                    An order {item['increment_id']} was skipped because the ordered product {product_sku}
+                    not exists in Odoo.""")
+                    log.write({'log_lines': [(0, 0, {
+                        'message': message, 'order_ref': item['increment_id'],
+                        'magento_order_data_queue_line_id': line_id
+                    })]})
+                    return False
                 if len(product_obj) > 1:
                     message = _(f"""
                     An order {item['increment_id']} was skipped because the ordered product {product_sku} 

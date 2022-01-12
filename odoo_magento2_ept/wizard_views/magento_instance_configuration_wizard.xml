@@ -58,6 +58,9 @@
                                         <li>
                                             Magento =&gt; Configurations =&gt; Settings
                                         </li>
+                                        <li>
+                                            Connector version (15.0.2.0) or later versions must require API change plugin version (1.0.9).
+                                        </li>
                                     </ul>
                                 </div>
                             </div>

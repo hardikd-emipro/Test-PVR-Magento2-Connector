@@ -156,9 +156,13 @@ class MagentoProductTemplate(models.Model):
 
     def _create_configurable_variant(self, line, item, m_template, data):
         o_template = m_template.odoo_product_template_id
+        e_attributes = item.get('extension_attributes', dict())
+        is_verify = self._verify_attribute_count(line, item, o_template, e_attributes)
+        if not is_verify:
+            return is_verify
         instance = m_template.magento_instance_id
         m_attribute = self.env['magento.product.attribute']
-        for product in item.get('extension_attributes', dict()).get('child_products', list()):
+        for product in e_attributes.get('child_products', list()):
             for attribute in product.get('simple_product_attribute', list()):
                 attribute_dict = m_attribute.search_attribute_by_value(instance, attribute,
                                                                        item.get('attribute_set_id'))
@@ -167,6 +171,25 @@ class MagentoProductTemplate(models.Model):
         o_template._create_variant_ids()
         child_products = item.get('extension_attributes', dict()).get('child_products', list())
         self._update_variant_sku(line, m_template, item, child_products, data)
+        return True
+
+    def _verify_attribute_count(self, line, item, o_template, e_attributes):
+        o_attr_count = len(o_template.attribute_line_ids)
+        m_attr_count = len(e_attributes.get('attributes'))
+        if o_attr_count > 0 and o_attr_count != m_attr_count:
+            field_name = 'import_product_queue_line_id'
+            if 'is_order' in list(self.env.context.keys()):
+                field_name = 'magento_order_data_queue_line_id'
+            message = f"Product {item.get('sku')} having mismatch Attribute count. \n" \
+                      f"Product having {m_attr_count} attribute at magento side " \
+                      f"and {o_attr_count} Attribute at odoo side."
+            line.queue_id.log_book_id.write({
+                'log_lines': [(0, 0, {
+                    'message': message,
+                    field_name: line.id
+                })]
+            })
+            return False
         return True
 
     def _map_variant_in_layer(self, variant, m_template, child, data, item):
@@ -196,7 +219,7 @@ class MagentoProductTemplate(models.Model):
             'magento_tmpl_id': m_template.id,
             'created_at': datetime.strptime(item.get('created_at'), '%Y-%m-%d %H:%M:%S').date(),
             'updated_at': datetime.strptime(item.get('created_at'), '%Y-%m-%d %H:%M:%S').date(),
-            'product_type': 'simple',
+            'product_type': child.get('product_type', 'simple'),
             'magento_website_ids': [(6, 0, data.get('website'))],
             'sync_product_with_magento': True
         }

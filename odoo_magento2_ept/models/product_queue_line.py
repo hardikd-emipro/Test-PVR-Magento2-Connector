@@ -89,7 +89,7 @@ class MagentoProductQueueLine(models.Model):
         if item.get('type_id') == 'simple':
             if 'simple_parent_id' in list(attribute.keys()):
                 m_product = m_product.search([('magento_product_id', '=', item.get('id'))], limit=1)
-                if not m_product or not line.do_not_update_existing_product:
+                if not m_product or 'is_order' in list(self.env.context.keys()) or line.do_not_update_existing_product:
                     # This case only runs when we get the simple product which are used as an
                     # Child product of any configurable product in Magento.
                     items = m_product.get_products(instance, [attribute.get('simple_parent_id')], line)

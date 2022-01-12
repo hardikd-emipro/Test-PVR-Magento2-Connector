@@ -36,8 +36,6 @@ class MagentoPaymentMethod(models.Model):
     magento_workflow_process_id = fields.Many2one(comodel_name='sale.workflow.process.ept',
                                                   string='Automatic Workflow',
                                                   help="Workflow for Order")
-    company_id = fields.Many2one(comodel_name='res.company', string='Company',
-                                 default=_default_company_id, help="Magento Company Id.")
     create_invoice_on = fields.Selection(
         [('open', 'Validate'), ('in_payment_paid', 'In-Payment/Paid')],
         string='Create Invoice on action',

@@ -1,7 +1,7 @@
 {
     # App information
     'name': "Odoo Magento 2 Connector",
-    'version': '15.0.2.0',
+    'version': '15.0.2.0.1',
     'category': 'Sales',
     'license': 'OPL-1',
     'summary': 'Odoo Magento 2 Connector helps you integrate your Magento 2.x website with Odoo '
